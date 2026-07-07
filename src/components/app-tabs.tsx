@@ -14,22 +14,22 @@ export default function AppTabs() {
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="flame.fill" />
+        <NativeTabs.Trigger.Icon sf="flame.fill" md="local_fire_department" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="stats">
         <NativeTabs.Trigger.Label>History</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="square.grid.2x2.fill" />
+        <NativeTabs.Trigger.Icon sf="square.grid.2x2.fill" md="grid_view" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="achievements">
         <NativeTabs.Trigger.Label>Awards</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="trophy.fill" />
+        <NativeTabs.Trigger.Icon sf="trophy.fill" md="emoji_events" />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="gearshape.fill" />
+        <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );
