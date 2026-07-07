@@ -1,56 +1,101 @@
-# Welcome to your Expo app 👋
+# wick 🕯️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Your day is a candle. It burns down as you use your phone. Cross your own 30-day
+average and it burns out for the day; use less and more wax survives. A grid of
+burnt-down candles becomes your history.
 
-## Get started
+wick is a deliberately **anti-engagement** screen-time app: no nudges, no streak-shaming
+pushes, no in-app shop, nothing designed to pull you back in. Most of its value is meant
+to live on your **home and lock screen widgets** — it should be boring to open and
+useful to glance at.
 
-1. Install dependencies
+> Built on Expo SDK 57 / React Native 0.86 / Expo Router, TypeScript throughout.
 
-   ```bash
-   npm install
-   ```
+## Design philosophy
 
-2. Start the app
+- **Boring to open, useful to glance.** The app never encourages you to spend more time
+  in it to track how little time you spend on your phone.
+- **Punishing on purpose.** A burnt-out candle looks plainly bad — a charred, smoking
+  stub. A close-but-survived day looks visibly worse than a light one. We lean into the
+  discomfort rather than softening heavy days into "neutral."
+- **No engagement bait.** See [DECISIONS.md](DECISIONS.md) for the full list of things
+  we deliberately did *not* build (push nudges, quests, currency, feeds, loot boxes).
 
-   ```bash
-   npx expo start
-   ```
+## What works today
 
-In the output, you'll find options to open the app in a
+Running the app right now (against the built-in demo/manual sources) gives you the
+entire experience end-to-end:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **Today** — a big candle at its live burn state, your usage vs. your personal limit,
+  and blunt copy for each state (calibrating / burning / burnt out).
+- **History** — a calendar heatmap of tiny candle sprites at their true burn heights,
+  plus survival rate, streaks, biggest save, and burnout count.
+- **Awards** — six one-off, milestone-based achievements (no daily grind).
+- **Settings & onboarding** — pick a tracking source, tune the burn curve, and the
+  permission-flow framing for the real device sources.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+The device screen-time sources and the widgets are the two native pieces still to build;
+the JavaScript sides of both are done and the seams are in place. See
+[NATIVE-INTEGRATION.md](NATIVE-INTEGRATION.md) for the plan and an honest blocker
+assessment.
 
-## Get a fresh project
-
-When you're ready, run:
+## Running it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start        # then open in a dev build / simulator; defaults to demo data
+
+npm run typecheck     # tsc --noEmit over the whole app
+npm test              # the pure domain core, 49 unit tests (see below)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+The demo source seeds a lived-in 40-day history so the candle, grid, and stats are all
+populated immediately. Switch to **Manual entry** in Settings to log real numbers today,
+before the native providers exist.
 
-### Other setup steps
+## The mechanic, precisely
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- **Baseline / limit** = the mean of your most-recent up-to-30 **finalized prior** days
+  (never today itself — the threshold is non-circular). Below 3 prior days you're
+  *calibrating* and the candle can't burn out.
+- **Burn** = `(usage / limit)²` by default (an *accelerating* curve — gentle early, steep
+  near the limit). Reach the limit and the candle is burnt out and locked for the day.
+- **A fresh candle every day.** Yesterday's outcome is recorded in history but never
+  penalizes tomorrow's starting state.
 
-## Learn more
+All of this is pure, deterministic TypeScript in [`src/core`](src/core) with no native
+or React dependencies — which is why it's exhaustively unit-tested.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Architecture
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Layered so the logic is testable and the platform is swappable:
 
-## Join the community
+```
+src/
+  core/        Pure domain — burn curve, rolling baseline, day eval, achievements,
+               stats, and the day-rollover engine. No RN/Expo imports. 49 unit tests.
+  data/        Persistence: schema + migrate(), a Repository interface, and the
+               expo-sqlite key-value adapter.
+  screentime/  The provider seam: device (native), manual, and mock, behind one
+               ScreenTimeProvider interface.
+  native/      Optional native-module lookups (returns null → graceful fallback).
+  widgets/     WidgetSnapshot + the optional native widget bridge.
+  state/       WickProvider — the one React hub wiring engine ⇄ repo ⇄ provider ⇄ clock.
+  ui/          Candle (SVG), CandleGrid, Onboarding, UnlockBanner, colors, formatting.
+  app/         Expo Router screens: _layout, index (Today), stats, achievements, settings.
+  components/  constants/  hooks/   — the template's themed design system.
+```
 
-Join our community of developers creating universal apps.
+The pure core is verified in plain Node using type-stripping — no Jest, no RN transform:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npm test   # tsc -p tools/tsconfig.core.json && node --test .core-test-build
+```
+
+## Where to read more
+
+- [DECISIONS.md](DECISIONS.md) — the ten open questions, answered, with rationale.
+- [NATIVE-INTEGRATION.md](NATIVE-INTEGRATION.md) — device screen-time + widgets plan,
+  iOS Screen Time constraints, config plugin, and the feasibility/blocker table.
+- [native-templates/](native-templates/) — config-plugin scaffolding to start the
+  native work.

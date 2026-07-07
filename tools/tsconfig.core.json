@@ -1,0 +1,18 @@
+{
+  "//": "Compiles the pure src/core domain (incl. *.test.ts) to CommonJS so it can be run with `node --test`. See package.json `test` script.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "../src/core",
+    "outDir": "../.core-test-build",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "types": ["node"],
+    "noEmit": false
+  },
+  "include": ["../src/core/**/*.ts"]
+}
