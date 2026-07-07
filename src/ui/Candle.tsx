@@ -17,15 +17,18 @@ export interface CandleProps {
   /** Burn fraction 0 (full) .. 1 (burnt out). */
   burn: number;
   status: CandleStatus;
-  /** Rendered height in px. Width scales proportionally. */
+  /** Candle-body height in px. Width and flame headroom scale proportionally. */
   size?: number;
   /** `mini` drops gradients/glow/drips for cheap rendering in the stats grid. */
   detail?: 'full' | 'mini';
 }
 
-// Geometry in a 100 x 160 viewBox.
+// Geometry in a 100 x 160 drawing box. The viewBox extends above y=0 by
+// VIEW_TOP so the flame and its glow (which reach ~y=-38 on a full candle)
+// aren't clipped at the top.
 const VIEW_W = 100;
 const VIEW_H = 160;
+const VIEW_TOP = -44;
 const BODY_LEFT = 30;
 const BODY_W = 40;
 const BASE_Y = 148;
@@ -61,11 +64,15 @@ function CandleComponent({ burn, status, size = 220, detail = 'full' }: CandlePr
   const flameWidth = flameHeight * 0.5;
   const glowCy = flameBaseY - flameHeight * 0.45;
 
-  const width = size * (VIEW_W / VIEW_H);
+  // Keep the drawing's pixel scale tied to VIEW_H so `size` still measures the
+  // candle body; the extra top headroom simply makes the element taller.
+  const scale = size / VIEW_H;
+  const viewH = VIEW_H - VIEW_TOP;
+  const width = VIEW_W * scale;
   const isMini = detail === 'mini';
 
   return (
-    <Svg width={width} height={size} viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}>
+    <Svg width={width} height={viewH * scale} viewBox={`0 ${VIEW_TOP} ${VIEW_W} ${viewH}`}>
       {!isMini && (
         <Defs>
           <LinearGradient id={`${gid}-wax`} x1="0" y1="0" x2="0" y2="1">
