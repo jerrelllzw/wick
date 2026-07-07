@@ -1,0 +1,7 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+  <!-- Special access: read Digital Wellbeing usage totals. Granted by the user in
+       Settings > Special app access > Usage access, not via a runtime dialog. -->
+  <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"
+    tools:ignore="ProtectedPermissions" />
+</manifest>

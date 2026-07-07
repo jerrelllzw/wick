@@ -9,13 +9,11 @@ import { useWick } from '@/state/AppStateProvider';
 import { Candle } from '@/ui/Candle';
 import { CandleGrid } from '@/ui/CandleGrid';
 import { formatMinutes } from '@/ui/format';
-import { useTone } from '@/ui/tone';
 
 export default function StatsScreen() {
   const { stats, history } = useWick();
   const insets = useSafeAreaInsets();
   const theme = useTheme();
-  const tone = useTone();
 
   return (
     <ScrollView
@@ -27,65 +25,62 @@ export default function StatsScreen() {
       <View style={styles.inner}>
         <ThemedText type="subtitle">History</ThemedText>
 
-        <View style={styles.cardGrid}>
-          <StatCard value={`${Math.round(stats.survivalRate * 100)}%`} label="candles saved" hint={`of ${stats.measuredDays} judged days`} />
-          <StatCard value={String(stats.currentStreak)} label="day streak" hint="right now" />
-          <StatCard value={String(stats.longestStreak)} label="best streak" hint="all time" />
-          <StatCard
-            value={stats.bestMarginMinutes != null ? formatMinutes(stats.bestMarginMinutes) : '—'}
-            label="biggest save"
-            hint="most under your limit"
+        <ThemedView type="backgroundElement" style={styles.hero}>
+          <View style={styles.heroText}>
+            <ThemedText type="title" style={styles.heroValue}>
+              {`${Math.round(stats.survivalRate * 100)}%`}
+            </ThemedText>
+            <ThemedText type="smallBold">candles saved</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              {`of ${stats.measuredDays} judged days`}
+            </ThemedText>
+          </View>
+          <Candle
+            burn={1 - stats.survivalRate}
+            status={stats.measuredDays > 0 && stats.survivalRate === 0 ? 'burntOut' : 'survived'}
+            size={96}
           />
-          <StatCard value={String(stats.burntOutDays)} label="burnouts" hint="days you blew past" color={stats.burntOutDays > 0 ? tone.danger : undefined} />
-          <StatCard
-            value={stats.averageScreenTimeMinutes != null ? formatMinutes(stats.averageScreenTimeMinutes) : '—'}
-            label="daily average"
-            hint="across judged days"
-          />
-        </View>
+        </ThemedView>
 
-        <Legend />
+        <ThemedView type="backgroundElement" style={styles.statRow}>
+          <MiniStat value={String(stats.currentStreak)} label="day streak" />
+          <View style={[styles.divider, { backgroundColor: theme.backgroundSelected }]} />
+          <MiniStat value={String(stats.longestStreak)} label="best streak" />
+          <View style={[styles.divider, { backgroundColor: theme.backgroundSelected }]} />
+          <MiniStat
+            value={stats.averageScreenTimeMinutes != null ? formatMinutes(stats.averageScreenTimeMinutes) : '—'}
+            label="daily avg"
+          />
+        </ThemedView>
 
         <CandleGrid history={history} />
+
+        <Legend />
       </View>
     </ScrollView>
   );
 }
 
-function StatCard({
-  value,
-  label,
-  hint,
-  color,
-}: {
-  value: string;
-  label: string;
-  hint: string;
-  color?: string;
-}) {
+function MiniStat({ value, label }: { value: string; label: string }) {
   return (
-    <ThemedView type="backgroundElement" style={styles.card}>
-      <ThemedText type="title" style={[styles.cardValue, color ? { color } : undefined]}>
+    <View style={styles.miniStat}>
+      <ThemedText type="subtitle" style={styles.miniValue}>
         {value}
       </ThemedText>
-      <ThemedText type="smallBold">{label}</ThemedText>
-      <ThemedText type="small" themeColor="textSecondary">
-        {hint}
+      <ThemedText type="small" themeColor="textSecondary" style={styles.miniLabel}>
+        {label}
       </ThemedText>
-    </ThemedView>
+    </View>
   );
 }
 
 function Legend() {
   return (
-    <ThemedView type="backgroundElement" style={styles.legend}>
-      <ThemedText type="smallBold">How to read the grid</ThemedText>
-      <View style={styles.legendRow}>
-        <LegendItem burn={0.05} status="survived" label="Light day" />
-        <LegendItem burn={0.8} status="survived" label="Close call" />
-        <LegendItem burn={1} status="burntOut" label="Burnt out" />
-      </View>
-    </ThemedView>
+    <View style={styles.legend}>
+      <LegendItem burn={0.05} status="survived" label="Light day" />
+      <LegendItem burn={0.8} status="survived" label="Close call" />
+      <LegendItem burn={1} status="burntOut" label="Burnt out" />
+    </View>
   );
 }
 
@@ -100,8 +95,8 @@ function LegendItem({
 }) {
   return (
     <View style={styles.legendItem}>
-      <Candle burn={burn} status={status} size={44} detail="mini" />
-      <ThemedText type="small" themeColor="textSecondary" style={styles.legendLabel}>
+      <Candle burn={burn} status={status} size={22} detail="mini" />
+      <ThemedText type="small" themeColor="textSecondary">
         {label}
       </ThemedText>
     </View>
@@ -120,37 +115,52 @@ const styles = StyleSheet.create({
     maxWidth: MaxContentWidth,
     gap: Spacing.four,
   },
-  cardGrid: {
+  hero: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.three,
-  },
-  card: {
-    flexGrow: 1,
-    flexBasis: '30%',
-    minWidth: 100,
+    alignItems: 'center',
+    justifyContent: 'space-between',
     borderRadius: Spacing.three,
-    padding: Spacing.three,
+    padding: Spacing.four,
+  },
+  heroText: {
     gap: Spacing.half,
   },
-  cardValue: {
-    fontSize: 34,
-    lineHeight: 40,
+  heroValue: {
+    fontSize: 56,
+    lineHeight: 60,
+  },
+  statRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: Spacing.three,
+    paddingVertical: Spacing.three,
+  },
+  miniStat: {
+    flex: 1,
+    alignItems: 'center',
+    gap: Spacing.half,
+  },
+  miniValue: {
+    fontSize: 26,
+    lineHeight: 30,
+  },
+  miniLabel: {
+    textAlign: 'center',
+  },
+  divider: {
+    width: StyleSheet.hairlineWidth,
+    alignSelf: 'stretch',
   },
   legend: {
-    borderRadius: Spacing.three,
-    padding: Spacing.three,
-    gap: Spacing.three,
-  },
-  legendRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    columnGap: Spacing.four,
+    rowGap: Spacing.two,
   },
   legendItem: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.one,
-  },
-  legendLabel: {
-    textAlign: 'center',
   },
 });

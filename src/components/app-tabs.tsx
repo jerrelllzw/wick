@@ -9,8 +9,9 @@ export default function AppTabs() {
 
   return (
     <NativeTabs
-      backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
+      disableTransparentOnScrollEdge
+      backgroundColor={colors.backgroundElement}
+      indicatorColor={colors.backgroundSelected}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
@@ -27,9 +28,9 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="trophy.fill" md="emoji_events" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="settings">
-        <NativeTabs.Trigger.Label>Settings</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="gearshape.fill" md="settings" />
+      <NativeTabs.Trigger name="friends">
+        <NativeTabs.Trigger.Label>Friends</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="person.2.fill" md="group" />
       </NativeTabs.Trigger>
     </NativeTabs>
   );

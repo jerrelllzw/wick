@@ -6,27 +6,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { ScreenTimeSourceKind } from '@/screentime';
 import { useWick } from '@/state/AppStateProvider';
 import { Candle } from './Candle';
 import { useTone } from './tone';
 
-const SOURCES: { kind: ScreenTimeSourceKind; label: string; desc: string }[] = [
-  { kind: 'device', label: 'Screen Time', desc: 'Track automatically from your device.' },
-  { kind: 'manual', label: 'Manual entry', desc: 'Type your daily total yourself.' },
-  { kind: 'mock', label: 'Just exploring', desc: 'Use demo data for now.' },
-];
-
 export function Onboarding() {
-  const { settings, setSource, requestPermission, completeOnboarding, deviceAvailable, sourceStatus } = useWick();
+  const { requestPermission, completeOnboarding, deviceAvailable, sourceStatus } = useWick();
   const theme = useTheme();
   const tone = useTone();
   const [step, setStep] = useState(0);
-
-  const pickSource = async (kind: ScreenTimeSourceKind) => {
-    await setSource(kind);
-    if (kind === 'device' && deviceAvailable) await requestPermission();
-  };
 
   return (
     <ThemedView style={[styles.overlay, { backgroundColor: theme.background }]}>
@@ -52,37 +40,37 @@ export function Onboarding() {
             ) : (
               <>
                 <ThemedText type="subtitle" style={styles.center}>
-                  Where should wick get your screen time?
+                  wick uses your Screen Time.
                 </ThemedText>
-                <View style={styles.sourceList}>
-                  {SOURCES.map((s) => (
-                    <Pressable
-                      key={s.kind}
-                      onPress={() => void pickSource(s.kind)}
-                      style={({ pressed }) => [pressed && styles.pressed]}>
-                      <ThemedView
-                        type="backgroundElement"
-                        style={[styles.sourceCard, settings.source === s.kind && { borderColor: tone.flame }]}>
-                        <View style={styles.sourceText}>
-                          <ThemedText type="smallBold">{s.label}</ThemedText>
-                          <ThemedText type="small" themeColor="textSecondary">
-                            {s.kind === 'device' && !deviceAvailable
-                              ? 'Needs a development build with the native module — pick another for now.'
-                              : s.desc}
-                          </ThemedText>
-                        </View>
-                        <ThemedText style={{ color: settings.source === s.kind ? tone.good : 'transparent' }}>✓</ThemedText>
-                      </ThemedView>
-                    </Pressable>
-                  ))}
-                </View>
+                <ThemedText themeColor="textSecondary" style={styles.center}>
+                  Your daily total comes straight from your device — nothing to log by hand. It never
+                  leaves your phone.
+                </ThemedText>
 
-                {settings.source === 'device' && (
+                {deviceAvailable ? (
+                  <>
+                    <Pressable
+                      onPress={() => void requestPermission()}
+                      style={({ pressed }) => [
+                        styles.primary,
+                        { backgroundColor: tone.flame },
+                        pressed && styles.pressed,
+                      ]}>
+                      <ThemedText type="smallBold" style={styles.primaryLabel}>
+                        {Platform.OS === 'android' ? 'Open usage-access settings' : 'Grant Screen Time access'}
+                      </ThemedText>
+                    </Pressable>
+                    <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
+                      {Platform.OS === 'android'
+                        ? 'Android needs Usage Access granted in system Settings. Access: '
+                        : 'iOS will ask for Screen Time access. Access: '}
+                      <ThemedText type="smallBold">{sourceStatus}</ThemedText>
+                    </ThemedText>
+                  </>
+                ) : (
                   <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
-                    {Platform.OS === 'android'
-                      ? 'Android needs Usage Access granted in system Settings. Access: '
-                      : 'iOS will ask for Screen Time access. Access: '}
-                    <ThemedText type="smallBold">{sourceStatus}</ThemedText>
+                    Screen Time needs a development build with the native module. Your candle will
+                    stay in calibration until that&apos;s wired up.
                   </ThemedText>
                 )}
 
@@ -135,23 +123,6 @@ const styles = StyleSheet.create({
   },
   center: {
     textAlign: 'center',
-  },
-  sourceList: {
-    alignSelf: 'stretch',
-    gap: Spacing.two,
-  },
-  sourceCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.three,
-    padding: Spacing.three,
-    borderRadius: Spacing.three,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  sourceText: {
-    flex: 1,
-    gap: Spacing.half,
   },
   primary: {
     alignSelf: 'stretch',

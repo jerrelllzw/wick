@@ -9,7 +9,7 @@ import { Colors, MaxContentWidth, Spacing } from '@/constants/theme';
 export default function AppTabs() {
   return (
     <Tabs>
-      <TabSlot style={{ height: '100%' }} />
+      <TabSlot style={{ flex: 1 }} />
       <TabList asChild>
         <CustomTabList>
           <TabTrigger name="today" href="/" asChild>
@@ -21,8 +21,8 @@ export default function AppTabs() {
           <TabTrigger name="awards" href="/achievements" asChild>
             <TabButton>Awards</TabButton>
           </TabTrigger>
-          <TabTrigger name="settings" href="/settings" asChild>
-            <TabButton>Settings</TabButton>
+          <TabTrigger name="friends" href="/friends" asChild>
+            <TabButton>Friends</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>
@@ -49,30 +49,30 @@ export function CustomTabList(props: TabListProps) {
   const colors = Colors[scheme === 'unspecified' ? 'light' : scheme];
 
   return (
-    <View {...props} style={styles.tabListContainer}>
-      <ThemedView type="backgroundElement" style={[styles.innerContainer, { borderColor: colors.backgroundSelected }]}>
+    <ThemedView
+      {...props}
+      type="backgroundElement"
+      style={[styles.tabBar, { borderTopColor: colors.backgroundSelected }]}>
+      <View style={styles.innerContainer}>
         <ThemedText type="smallBold" style={styles.brandText}>
           wick
         </ThemedText>
         {props.children}
-      </ThemedView>
-    </View>
+      </View>
+    </ThemedView>
   );
 }
 
 const styles = StyleSheet.create({
-  tabListContainer: {
-    position: 'absolute',
-    width: '100%',
-    padding: Spacing.three,
-    justifyContent: 'center',
+  tabBar: {
+    borderTopWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
     flexDirection: 'row',
+    justifyContent: 'center',
   },
   innerContainer: {
     paddingVertical: Spacing.two,
-    paddingHorizontal: Spacing.five,
-    borderRadius: Spacing.five,
+    paddingHorizontal: Spacing.three,
     flexDirection: 'row',
     alignItems: 'center',
     flexGrow: 1,

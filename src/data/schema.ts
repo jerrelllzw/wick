@@ -22,9 +22,8 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  // Dev default is the mock so the app is demoable before native APIs are wired.
-  // Onboarding moves the user to 'device' (preferred) or 'manual'.
-  source: 'mock',
+  // Device Screen Time is the only tracking source. Onboarding grants access to it.
+  source: 'device',
   burn: DEFAULT_BURN_CONFIG,
   baseline: DEFAULT_BASELINE_CONFIG,
   notifyOnAchievement: true,

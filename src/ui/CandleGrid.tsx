@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { daysInMonth, monthKeyOf, type CandleState } from '@/core';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 import { Candle } from './Candle';
 import { formatDayKeyLong } from './format';
 import { useTone } from './tone';
@@ -28,6 +29,10 @@ export function CandleGrid({ history }: { history: CandleState[] }) {
     return [...set].sort((a, b) => (a < b ? 1 : -1)).slice(0, MAX_MONTHS); // most recent first
   }, [history]);
 
+  // Index into `months`; 0 is the most recent month with any data.
+  const [index, setIndex] = useState(0);
+  const safeIndex = Math.min(index, Math.max(0, months.length - 1));
+
   if (months.length === 0) {
     return (
       <ThemedText type="small" themeColor="textSecondary" style={styles.empty}>
@@ -36,12 +41,40 @@ export function CandleGrid({ history }: { history: CandleState[] }) {
     );
   }
 
+  const month = months[safeIndex];
+  const hasOlder = safeIndex < months.length - 1;
+  const hasNewer = safeIndex > 0;
+
   return (
     <View style={styles.container}>
-      {months.map((month) => (
-        <MonthBlock key={month} month={month} byDate={byDate} />
-      ))}
+      <View style={styles.nav}>
+        <NavButton label="‹" disabled={!hasOlder} onPress={() => setIndex(safeIndex + 1)} />
+        <ThemedText type="smallBold" style={styles.navTitle}>
+          {formatDayKeyLong(`${month}-01`).replace(/ \d+,/, ',')}
+        </ThemedText>
+        <NavButton label="›" disabled={!hasNewer} onPress={() => setIndex(safeIndex - 1)} />
+      </View>
+      <MonthBlock month={month} byDate={byDate} />
     </View>
+  );
+}
+
+function NavButton({ label, disabled, onPress }: { label: string; disabled: boolean; onPress: () => void }) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={disabled}
+      hitSlop={Spacing.two}
+      style={({ pressed }) => [
+        styles.navButton,
+        { backgroundColor: pressed ? theme.backgroundSelected : theme.backgroundElement },
+        disabled && styles.navButtonDisabled,
+      ]}>
+      <ThemedText type="smallBold" themeColor={disabled ? 'textSecondary' : 'text'} style={styles.navArrow}>
+        {label}
+      </ThemedText>
+    </Pressable>
   );
 }
 
@@ -61,7 +94,6 @@ function MonthBlock({ month, byDate }: { month: string; byDate: Map<string, Cand
 
   return (
     <View style={styles.month}>
-      <ThemedText type="smallBold">{formatDayKeyLong(`${month}-01`).replace(/ \d+,/, ',')}</ThemedText>
       <View style={styles.weekRow}>
         {WEEKDAYS.map((w, i) => (
           <ThemedText key={i} type="small" themeColor="textSecondary" style={styles.weekday}>
@@ -86,7 +118,29 @@ function MonthBlock({ month, byDate }: { month: string; byDate: Map<string, Cand
 
 const styles = StyleSheet.create({
   container: {
-    gap: Spacing.five,
+    gap: Spacing.three,
+  },
+  nav: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  navTitle: {
+    textAlign: 'center',
+  },
+  navButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navButtonDisabled: {
+    opacity: 0.4,
+  },
+  navArrow: {
+    fontSize: 20,
+    lineHeight: 22,
   },
   month: {
     gap: Spacing.two,
