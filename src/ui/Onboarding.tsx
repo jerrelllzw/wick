@@ -8,6 +8,7 @@ import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useWick } from '@/state/AppStateProvider';
 import { Candle } from './Candle';
+import { PaperBackground } from './PaperBackground';
 import { useTone } from './tone';
 
 export function Onboarding() {
@@ -18,6 +19,7 @@ export function Onboarding() {
 
   return (
     <ThemedView style={[styles.overlay, { backgroundColor: theme.background }]}>
+      <PaperBackground />
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.inner}>

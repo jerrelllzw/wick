@@ -7,20 +7,23 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+// Paper & ink palette. Light mode is aged parchment written on with sepia ink;
+// dark mode is a journal read by candlelight — deep leather-brown paper with a
+// warm, lantern-lit cream for the ink. No screens, no neon: just paper.
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#3A2E1F',
+    background: '#F4ECD8',
+    backgroundElement: '#EBE0C6',
+    backgroundSelected: '#DFD2B2',
+    textSecondary: '#6B5B44',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#EDE3CC',
+    background: '#1A140D',
+    backgroundElement: '#241B12',
+    backgroundSelected: '#31241A',
+    textSecondary: '#B7A88C',
   },
 } as const;
 

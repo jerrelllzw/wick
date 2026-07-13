@@ -9,6 +9,7 @@ import { useWick } from '@/state/AppStateProvider';
 import { Candle } from '@/ui/Candle';
 import { CandleGrid } from '@/ui/CandleGrid';
 import { formatMinutes } from '@/ui/format';
+import { PaperBackground } from '@/ui/PaperBackground';
 
 export default function StatsScreen() {
   const { stats, history } = useWick();
@@ -16,13 +17,15 @@ export default function StatsScreen() {
   const theme = useTheme();
 
   return (
-    <ScrollView
-      style={[styles.scroll, { backgroundColor: theme.background }]}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + BottomTabInset + Spacing.five },
-      ]}>
-      <View style={styles.inner}>
+    <View style={styles.fill}>
+      <PaperBackground />
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + BottomTabInset + Spacing.five },
+        ]}>
+        <View style={styles.inner}>
         <ThemedText type="subtitle">History</ThemedText>
 
         <ThemedView type="backgroundElement" style={styles.hero}>
@@ -56,8 +59,9 @@ export default function StatsScreen() {
         <CandleGrid history={history} />
 
         <Legend />
-      </View>
-    </ScrollView>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -104,6 +108,7 @@ function LegendItem({
 }
 
 const styles = StyleSheet.create({
+  fill: { flex: 1 },
   scroll: { flex: 1 },
   content: {
     flexDirection: 'row',

@@ -5,27 +5,28 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import type { AchievementProgress } from '@/core';
-import { useTheme } from '@/hooks/use-theme';
 import { useWick } from '@/state/AppStateProvider';
 import { formatDayKeyLong } from '@/ui/format';
+import { PaperBackground } from '@/ui/PaperBackground';
 import { useTone } from '@/ui/tone';
 
 export default function AchievementsScreen() {
 	const { achievements } = useWick();
 	const insets = useSafeAreaInsets();
-	const theme = useTheme();
 
 	const earned = achievements.filter((a) => a.unlocked).length;
 
 	return (
-		<ScrollView
-			style={[styles.scroll, { backgroundColor: theme.background }]}
-			contentContainerStyle={[
-				styles.content,
-				{ paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + BottomTabInset + Spacing.five },
-			]}
-		>
-			<View style={styles.inner}>
+		<View style={styles.fill}>
+			<PaperBackground />
+			<ScrollView
+				style={styles.scroll}
+				contentContainerStyle={[
+					styles.content,
+					{ paddingTop: insets.top + Spacing.four, paddingBottom: insets.bottom + BottomTabInset + Spacing.five },
+				]}
+			>
+				<View style={styles.inner}>
 				<View style={styles.header}>
 					<ThemedText type='subtitle'>Awards</ThemedText>
 					<ThemedText type='small' themeColor='textSecondary'>
@@ -40,6 +41,7 @@ export default function AchievementsScreen() {
 				</View>
 			</View>
 		</ScrollView>
+		</View>
 	);
 }
 
@@ -82,6 +84,7 @@ function AchievementRow({ item }: { item: AchievementProgress }) {
 }
 
 const styles = StyleSheet.create({
+	fill: { flex: 1 },
 	scroll: { flex: 1 },
 	content: {
 		flexDirection: 'row',

@@ -8,6 +8,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useWick } from '@/state/AppStateProvider';
 import { Candle } from '@/ui/Candle';
 import { formatMinutes } from '@/ui/format';
+import { PaperBackground } from '@/ui/PaperBackground';
 import { candleCopy, useTone, type Tone } from '@/ui/tone';
 
 export default function TodayScreen() {
@@ -26,6 +27,7 @@ export default function TodayScreen() {
 
   return (
     <ThemedView style={styles.fill}>
+      <PaperBackground />
       <ScrollView contentContainerStyle={styles.scroll}>
         <SafeAreaView style={styles.content}>
           <Candle
